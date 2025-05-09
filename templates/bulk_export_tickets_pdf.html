@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1>Export Tickets as PDF</h1>
+      <p class="text-muted">Select filters and generate a PDF with all matching tickets</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Filter Options</h5>
+        </div>
+        <div class="card-body">
+          <form method="get" action="{% url 'bulk_export_tickets_pdf' %}">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="ticket_type" class="form-label">Ticket Type</label>
+                <select name="ticket_type" id="ticket_type" class="form-select">
+                  <option value="">All Types</option>
+                  {% for value, name in ticket_types %}
+                  <option value="{{ value }}">{{ name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="status" class="form-label">Ticket Status</label>
+                <select name="status" id="status" class="form-select">
+                  <option value="">All Statuses</option>
+                  {% for value, name in ticket_statuses %}
+                  <option value="{{ value }}">{{ name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="date_from" class="form-label">Date From</label>
+                <input type="date" name="date_from" id="date_from" class="form-control">
+              </div>
+              
+              <div class="col-md-6">
+                <label for="date_to" class="form-label">Date To</label>
+                <input type="date" name="date_to" id="date_to" class="form-control">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="page_size" class="form-label">Maximum Number of Tickets</label>
+              <select name="page_size" id="page_size" class="form-select">
+                <option value="10">10 tickets</option>
+                <option value="25">25 tickets</option>
+                <option value="50" selected>50 tickets</option>
+                <option value="100">100 tickets</option>
+                <option value="200">200 tickets</option>
+              </select>
+              <small class="text-muted">Limit the number of tickets to prevent large PDF files</small>
+            </div>
+            
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              The PDF will include all tickets matching your filters, up to the maximum number specified.
+              Each ticket will be on a separate page, ready for printing.
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i> Generate PDF
+              </button>
+              <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Tickets
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>Quick Export Options</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{% url 'bulk_export_tickets_pdf' %}?ticket_type=CHAMAN_ENCLOSURE&page_size=50" class="btn btn-success">
+              <i class="fas fa-file-pdf me-2"></i> Export Chaman Tickets
+            </a>
+            
+            <a href="{% url 'bulk_export_tickets_pdf' %}?ticket_type=GAWADER_ENCLOSURE&page_size=50" class="btn btn-info">
+              <i class="fas fa-file-pdf me-2"></i> Export Gawader Tickets
+            </a>
+            
+            <a href="{% url 'bulk_export_tickets_pdf' %}?status=UNSCANNED&page_size=50" class="btn btn-warning">
+              <i class="fas fa-file-pdf me-2"></i> Export Unscanned Tickets
+            </a>
+            
+            <a href="{% url 'bulk_export_tickets_pdf' %}?status=SCANNED&page_size=50" class="btn btn-secondary">
+              <i class="fas fa-file-pdf me-2"></i> Export Scanned Tickets
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>Tips</h5>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0">
+            <li>Use filters to narrow down the tickets you want to export</li>
+            <li>The PDF will be formatted for printing on 6" x 3" paper</li>
+            <li>Each ticket includes a QR code for scanning</li>
+            <li>For large exports, consider using multiple smaller batches</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

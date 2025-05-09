@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Regenerate All QR Codes</h1>
+
+<div class="card">
+  <div class="card-header">
+    <div>Confirm Regeneration</div>
+  </div>
+  <div class="card-body">
+    <p>This will regenerate QR codes for all tickets in the system. This may take some time depending on the number of tickets.</p>
+    
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Regenerate All QR Codes</button>
+      <a href="{% url 'ticket_stats' %}" class="btn btn-outline">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

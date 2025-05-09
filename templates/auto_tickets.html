@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Auto-Generated Tickets</h1>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <div>Filter Options</div>
+  </div>
+  <div class="card-body">
+    <form method="get" class="row">
+      <div class="col-md-3">
+        <label for="ticket_type">Ticket Type</label>
+        <select name="ticket_type" id="ticket_type" class="form-control">
+          <option value="">All Types</option>
+          <option value="GAWADER_ENCLOSURE" {% if request.GET.ticket_type == 'GAWADER_ENCLOSURE' %}selected{% endif %}>Gawader Enclosure</option>
+          <option value="CHAMAN_ENCLOSURE" {% if request.GET.ticket_type == 'CHAMAN_ENCLOSURE' %}selected{% endif %}>Chaman Enclosure</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="status">Status</label>
+        <select name="status" id="status" class="form-control">
+          <option value="">All Statuses</option>
+          <option value="UNSCANNED" {% if request.GET.status == 'UNSCANNED' %}selected{% endif %}>Unscanned</option>
+          <option value="SCANNED_GATE1" {% if request.GET.status == 'SCANNED_GATE1' %}selected{% endif %}>Scanned Gate 1</option>
+          <option value="SCANNED_BOTH" {% if request.GET.status == 'SCANNED_BOTH' %}selected{% endif %}>Scanned Both</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="page_size">Items Per Page</label>
+        <select name="page_size" id="page_size" class="form-control">
+          <option value="30" {% if page_obj.paginator.per_page == 30 %}selected{% endif %}>30</option>
+          <option value="50" {% if page_obj.paginator.per_page == 50 %}selected{% endif %}>50</option>
+          <option value="100" {% if page_obj.paginator.per_page == 100 %}selected{% endif %}>100</option>
+          <option value="200" {% if page_obj.paginator.per_page == 200 %}selected{% endif %}>200</option>
+          <option value="500" {% if page_obj.paginator.per_page == 500 %}selected{% endif %}>500</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>Auto-Generated Tickets ({{ page_obj.paginator.count }} total)</div>
+    <div class="mb-3">
+      <a href="{% url 'bulk_export_auto_tickets_pdf' %}?ticket_type={{ request.GET.ticket_type }}&status={{ request.GET.status }}&page_size={{ request.GET.page_size|default:'30' }}&page={{ page_obj.number }}" class="btn btn-primary">
+        <i class="fas fa-file-pdf me-2"></i> Export as PDF
+      </a>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>CNIC</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr>
+            <td>{{ ticket.ticket_id }}</td>
+            <td>{{ ticket.user.cnic_number }}</td>
+            <td>{{ ticket.get_ticket_type_display }}</td>
+            <td>{{ ticket.get_status_display }}</td>
+            <td>{{ ticket.created_at|date:"d M Y" }}</td>
+            <td>
+              <a href="{% url 'ticket_detail' ticket_id=ticket.ticket_id %}" class="btn btn-sm btn-outline">View</a>
+              <a href="{% url 'print_ticket' ticket_id=ticket.ticket_id %}" class="btn btn-sm btn-outline" target="_blank">Print</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">No tickets found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer">
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" class="pagination-item">&laquo; first</a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="pagination-item">&lsaquo; prev</a>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span class="pagination-item active">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="pagination-item">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="pagination-item">next &rsaquo;</a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}" class="pagination-item">last &raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+

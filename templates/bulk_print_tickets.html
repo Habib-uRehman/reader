@@ -1,0 +1,189 @@
+{% extends 'base_print.html' %}
+{% load static %}
+
+{% block content %}
+<div class="bulk-print-container">
+  <div class="print-header">
+    <h1>Bulk Tickets</h1>
+    <p>Total tickets: {{ tickets.count }}</p>
+    <p>Type: {{ ticket_type_display }}</p>
+    <p>Page: {{ page }}</p>
+    <button onclick="window.print()" class="no-print">Print Tickets</button>
+  </div>
+
+  <div class="mb-3">
+    <a href="{% url 'bulk_export_auto_tickets_pdf' %}?ticket_type={{ request.GET.ticket_type }}&page_size=50" class="btn btn-primary">
+      <i class="fas fa-file-pdf me-2"></i> Export as PDF
+    </a>
+  </div>
+
+  {% for ticket in tickets %}
+  <div class="ticket-container {% if forloop.counter0|divisibleby:2 %}page-break{% endif %}">
+    <div class="ticket {{ ticket.ticket_type|lower }}">
+      <div class="ticket-header">
+        <div class="logo">
+          <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <div class="ticket-title">
+          <h2>IBC Event Ticket</h2>
+          <p>{{ ticket.get_ticket_type_display }}</p>
+        </div>
+      </div>
+      
+      <div class="ticket-body">
+        <div class="user-info">
+          <p><strong>Name:</strong> {{ ticket.user.full_name }}</p>
+          <p><strong>CNIC:</strong> {{ ticket.user.cnic_number }}</p>
+          <p><strong>Price:</strong> PKR {{ ticket.price }}</p>
+        </div>
+        
+        <div class="qr-codes">
+          <div class="ticket-qr">
+            <h4>Ticket QR Code</h4>
+            {% if ticket.qr_code %}
+            <img src="{{ ticket.qr_code.url }}" alt="Ticket QR Code">
+            {% else %}
+            <p>QR Code Not Available</p>
+            {% endif %}
+            <p>Ticket ID: {{ ticket.ticket_id }}</p>
+          </div>
+          
+          <div class="map-qr">
+            <h4>Event Map</h4>
+            <img src="{% static 'images/map.png' %}" alt="Event Map QR Code">
+            <p>Scan for venue map</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="important-instructions">
+        <h3>Important Instructions</h3>
+        <ul>
+          <li class="red-text">You MUST bring your original CNIC for entry verification</li>
+          <li class="red-text">One ticket is valid for ONE person only</li>
+          <li class="red-text">No entry without a valid ticket and CNIC</li>
+          <li>Please arrive at least 30 minutes before the event</li>
+          <li>Follow security instructions at all times</li>
+        </ul>
+      </div>
+      
+      <div class="ticket-footer">
+        <p>Please present this E-ticket along with your original CNIC at the entry gate.</p>
+        <p>Entry will not be permitted without a valid ticket.</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .bulk-print-container {
+    font-family: Arial, sans-serif;
+  }
+  
+  .print-header {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .ticket-container {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+  
+  .page-break {
+    page-break-after: always;
+  }
+  
+  .ticket {
+    border: 2px solid #000;
+    padding: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .ticket.gawader_enclosure {
+    border-color: #007bff;
+  }
+  
+  .ticket.chaman_enclosure {
+    border-color: #28a745;
+  }
+  
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+  }
+  
+  .logo img {
+    max-width: 100px;
+  }
+  
+  .ticket-title {
+    margin-left: 20px;
+  }
+  
+  .ticket-body {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .user-info {
+    flex: 1;
+  }
+  
+  .qr-codes {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .ticket-qr, .map-qr {
+    text-align: center;
+  }
+  
+  .ticket-qr img, .map-qr img {
+    max-width: 120px;
+    height: auto;
+  }
+  
+  .important-instructions {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px dashed #999;
+    background-color: #f9f9f9;
+  }
+  
+  .important-instructions h3 {
+    margin-top: 0;
+    font-size: 16px;
+    text-align: center;
+  }
+  
+  .important-instructions ul {
+    padding-left: 20px;
+    margin-bottom: 0;
+  }
+  
+  .red-text {
+    color: #d9534f;
+    font-weight: bold;
+  }
+  
+  .ticket-footer {
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    font-size: 12px;
+  }
+  
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>
+{% endblock %}
+

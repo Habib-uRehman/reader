@@ -1,0 +1,13 @@
+pandas
+qrcode
+gunicorn
+pillow
+django
+whitenoise
+dj-database-url 
+psycopg2-binary
+django-crispy-forms==2.1.0
+crispy-bootstrap5==2023.10
+xlsxwriter
+djangorestframework
+xhtml2pdf

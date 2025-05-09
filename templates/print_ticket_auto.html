@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Print Ticket - {{ user.full_name }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      .no-print {
+        display: none;
+      }
+      .ticket-container {
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        border: none !important;
+        width: 6in !important;
+        height: 3in !important;
+      }
+      .print-container {
+        width: 6in !important;
+        height: 3in !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .print-container {
+      width: 6in;
+      height: 3in;
+      margin: 20px auto;
+    }
+    
+    .print-actions {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .print-btn {
+      background-color: #1d4ed8;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 0 5px;
+    }
+    
+    .ticket-container {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 6in;
+      height: 3in;
+      position: relative;
+    }
+    
+    /* Banner image styles */
+    .ticket-banner {
+      width: 100%;
+      height: 1.2in;
+      object-fit: cover; /* Changed from 'fill' to 'cover' */
+      display: block;
+      margin: 0;
+      padding: 0;
+      background-color: {% if ticket_design == 'gawader' %}#e6f0ff{% else %}#ffebeb{% endif %};
+    }
+    
+    .ticket-content {
+      padding: 0.15in 0.25in;
+      height: 1.65in;
+      position: relative;
+    }
+    
+    .main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.15in;
+    }
+    
+    .qr-left {
+      text-align: center;
+      width: 0.9in;
+    }
+    
+    .center-content {
+      flex-grow: 1;
+      text-align: center;
+      padding: 0 0.2in;
+    }
+    
+    .enclosure-title {
+      color: {% if ticket_design == 'gawader' %}#0066cc{% else %}#cc0000{% endif %};
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 0.1in;
+    }
+    
+    .cnic-box {
+      display: inline-block;
+      border: 1px solid {% if ticket_design == 'gawader' %}#0066cc{% else %}#cc0000{% endif %};
+      border-radius: 5px;
+      color: red;
+      padding: 0.08in;
+      font-size: 16px;
+      min-width: 2in;
+    }
+    
+    .qr-right {
+      text-align: center;
+      width: 0.9in;
+    }
+    
+    .qr-left img, .qr-right img {
+      width: 0.85in;
+      height: 0.85in;
+    }
+    
+    .qr-label {
+      font-size: 8px;
+      margin-top: 0.05in;
+      color: #666;
+      text-align: center;
+    }
+    
+    .ticket-notice {
+      text-align: center;
+      color: black;
+      font-weight: bold;
+      font-size: 12px;
+      margin: 0.1in 0;
+    }
+    
+    .ticket-footer {
+      position: absolute;
+      bottom: 0.2in;
+      left: 0.25in;
+      right: 0.25in;
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+    }
+    
+    .ticket-footer p {
+      margin: 0;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-actions no-print">
+    <button onclick="window.print()" class="print-btn">
+      <i class="fas fa-print"></i> Print Ticket
+    </button>
+    <button onclick="window.history.back()" class="print-btn" style="background-color: #555;">
+      Back
+    </button>
+  </div>
+  
+  <div class="print-container">
+    <div class="ticket-container">
+      <!-- Banner image -->
+      <img src="{% static 'images/ticket_bg_' %}{% if ticket_design == 'gawader' %}blue{% else %}red{% endif %}.jpg" 
+           alt="Ticket Banner" class="ticket-banner">
+      
+      <div class="ticket-content">
+        <!-- Main row with QR codes and center content -->
+        <div class="main-row">
+          <div class="qr-left">
+            {% if ticket.qr_code %}
+              <img src="{{ ticket.qr_code.url }}" alt="Ticket QR Code" 
+                   onerror="this.onerror=null; this.src='{% static 'images/default_qr.png' %}';">
+            {% else %}
+              <img src="{% static 'images/default_qr.png' %}" alt="Ticket QR Code">
+            {% endif %}
+            <div class="qr-label">{{ ticket.ticket_id }}</div>
+          </div>
+          
+          <div class="center-content">
+            <div class="enclosure-title">
+              {% if ticket_design == 'gawader' %}Gwadar{% else %}Chaman{% endif %} Enclosure
+            </div>
+            <div class="cnic-box">
+              {{ user.cnic_number }}
+            </div>
+            <div class="ticket-notice">
+              ONE TICKET FOR ONE PERSON ONLY
+            </div>
+          </div>
+          
+          <div class="qr-right">
+            <img src="{% static 'images/map.png' %}" alt="Event Map QR Code">
+            <div class="qr-label">Scan for<br>Route Map & Instructions</div>
+          </div>
+        </div>
+        
+        <!-- Footer with instructions -->
+        <div class="ticket-footer">
+          <p>Please present this ticket along with your original CNIC at the entry gate</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Ticket loaded. QR code URL: {{ ticket.qr_code.url|default:"None" }}');
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

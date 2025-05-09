@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Admin Dashboard - Event Dashboard{% endblock %}
+
+{% block content %}
+<div class="header">
+  <div class="header-title">Admin Dashboard</div>
+  <div class="user-info">
+    <img src="{% static 'images/default_logo.png' %}" alt="User">
+    <span>{{ request.user.username }}</span>
+  </div>
+</div>
+
+<div class="card-body" style="margin-bottom: 20px;">
+  <p>System-wide statistics and operator management</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="d-flex justify-between">
+      <div>
+        <div class="stat-card-title">Total Users</div>
+        <div class="stat-card-value">{{ total_users }}</div>
+      </div>
+      <i class="fas fa-users fa-lg" style="color: #64748b;"></i>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="d-flex justify-between">
+      <div>
+        <div class="stat-card-title">Total Tickets</div>
+        <div class="stat-card-value">{{ total_tickets }}</div>
+      </div>
+      <i class="fas fa-ticket-alt fa-lg" style="color: #64748b;"></i>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="d-flex justify-between">
+      <div>
+        <div class="stat-card-title">Active Operators</div>
+        <div class="stat-card-value">{{ operator_stats|length }}</div>
+      </div>
+      <i class="fas fa-user-tie fa-lg" style="color: #64748b;"></i>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="d-flex justify-between">
+      <div>
+        <div class="stat-card-title">Total Quota</div>
+        <div class="stat-card-value">3500</div>
+      </div>
+      <i class="fas fa-chart-pie fa-lg" style="color: #64748b;"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Ticket Quotas -->
+<div class="card mt-4">
+  <div class="card-header">
+    <div>Ticket Quotas</div>
+    <a href="{% url 'quota_management' %}" class="btn btn-outline btn-sm">Manage Quotas</a>
+  </div>
+  <div class="card-body">
+    <div class="grid-50-50">
+      {% for quota in quotas %}
+      <div class="quota-card">
+        <h3>{{ quota.ticket_type }}</h3>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: {% if quota.total_quantity > 0 %}{{ quota.sold_quantity|floatformat:0 }}{% else %}0{% endif %}%"></div>
+        </div>
+        <div class="d-flex justify-between mt-2">
+          <div>{{ quota.sold_quantity }} sold</div>
+          <div>{{ quota.remaining }} remaining</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Operator Performance -->
+<div class="card mt-4">
+  <div class="card-header">
+    <div>Operator Performance</div>
+  </div>
+  <div class="card-body">
+    <table>
+      <thead>
+        <tr>
+          <th>Operator</th>
+          <th>Location</th>
+          <th>Users Registered</th>
+          <th>Gawader Tickets</th>
+          <th>Chaman Tickets</th>
+          <th>Total Tickets</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stat in operator_stats %}
+        <tr>
+          <td>{{ stat.operator.name }}</td>
+          <td>{{ stat.operator.location }}</td>
+          <td>{{ stat.users }}</td>
+          <td>{{ stat.tickets.gawader }}</td>
+          <td>{{ stat.tickets.chaman }}</td>
+          <td>{{ stat.tickets.total }}</td>
+          <td>
+            <a href="{% url 'users_list' %}?operator={{ stat.operator.id }}" class="btn btn-icon btn-outline">
+              <i class="fas fa-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center">No operators registered.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mt-4">
+  <div class="card-header">
+    <div>Quick Actions</div>
+  </div>
+  <div class="card-body">
+    <div class="d-flex" style="gap: 15px;">
+      <a href="{% url 'users_list' %}" class="btn btn-primary" style="flex: 1;">
+        <i class="fas fa-users"></i> All Users
+      </a>
+      <a href="{% url 'ticket_list' %}" class="btn btn-primary" style="flex: 1;">
+        <i class="fas fa-ticket-alt"></i> All Tickets
+      </a>
+      <a href="{% url 'ticket_stats' %}" class="btn btn-outline" style="flex: 1;">
+        <i class="fas fa-chart-bar"></i> Statistics
+      </a>
+      <a href="{% url 'generate_report' %}" class="btn btn-outline" style="flex: 1;">
+        <i class="fas fa-download"></i> Reports
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Ticket Operations -->
+<div class="card mt-4">
+  <div class="card-header">
+    <div>Bulk Ticket Operations</div>
+  </div>
+  <div class="card-body">
+    <div class="list-group mb-3">
+      <a href="{% url 'bulk_export_tickets_pdf' %}" class="list-group-item list-group-item-action {% if request.path == '/bulk-export-tickets-pdf/' %}active{% endif %}">
+        <i class="fas fa-file-pdf me-2"></i> Export Tickets as PDF
+      </a>
+      <a href="{% url 'bulk_export_auto_tickets_pdf' %}" class="list-group-item list-group-item-action {% if request.path == '/bulk-export-auto-tickets-pdf/' %}active{% endif %}">
+        <i class="fas fa-file-pdf me-2"></i> Export Auto Tickets
+      </a>
+    </div>
+    
+    <!-- Quick Auto Ticket Export -->
+    <div class="mb-3">
+      <h6 class="mb-2">Quick Auto Ticket Export</h6>
+      <form method="get" action="{% url 'bulk_export_auto_tickets_pdf' %}" class="mb-3">
+        <input type="hidden" name="generate" value="true">
+        
+        <div class="row g-2">
+          <div class="col-md-6">
+            <select name="ticket_type" class="form-control form-control-sm">
+              <option value="">All Types</option>
+              <option value="GAWADER_ENCLOSURE">Gwadar</option>
+              <option value="CHAMAN_ENCLOSURE">Chaman</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <select name="page_size" class="form-control form-control-sm">
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">
+          <i class="fas fa-file-pdf me-1"></i> Export
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

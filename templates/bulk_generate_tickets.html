@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Generate Bulk Tickets</h1>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Current Quota Status</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h6>Chaman Enclosure</h6>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" 
+                 style="width: {{ chaman_quota.sold_percentage }}%;" 
+                 aria-valuenow="{{ chaman_quota.sold_percentage }}" 
+                 aria-valuemin="0" aria-valuemax="100">
+              {{ chaman_quota.sold_percentage }}%
+            </div>
+          </div>
+          <small class="text-muted">
+            {{ chaman_quota.sold_quantity }} sold, {{ chaman_quota.remaining }} remaining
+          </small>
+        </div>
+        
+        <div>
+          <h6>Gawader Enclosure</h6>
+          <div class="progress">
+            <div class="progress-bar bg-info" role="progressbar" 
+                 style="width: {{ gawader_quota.sold_percentage }}%;" 
+                 aria-valuenow="{{ gawader_quota.sold_percentage }}" 
+                 aria-valuemin="0" aria-valuemax="100">
+              {{ gawader_quota.sold_percentage }}%
+            </div>
+          </div>
+          <small class="text-muted">
+            {{ gawader_quota.sold_quantity }} sold, {{ gawader_quota.remaining }} remaining
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5>Generate Tickets</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="ticket_type" class="form-label">Ticket Type</label>
+            <select name="ticket_type" id="ticket_type" class="form-control" required>
+              <option value="">Select Ticket Type</option>
+              <option value="CHAMAN_ENCLOSURE">Chaman Enclosure (₨3,000)</option>
+              <option value="GAWADER_ENCLOSURE">Gawader Enclosure (₨4,000)</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="count" class="form-label">Number of Tickets to Generate</label>
+            <input type="number" name="count" id="count" class="form-control" min="1" max="1000" required>
+            <small class="text-muted">Maximum 1000 tickets per batch</small>
+          </div>
+          
+          <div class="mb-3 form-check">
+            <input type="checkbox" name="ignore_quota" id="ignore_quota" class="form-check-input">
+            <label for="ignore_quota" class="form-check-label">Ignore Quota Limits</label>
+            <small class="d-block text-danger">Warning: This will allow generating more tickets than the quota allows</small>
+          </div>
+          
+          <div class="alert alert-info">
+            <strong>Note:</strong> Generated tickets will have:
+            <ul class="mb-0">
+              <li>Name: "Ticket Holder"</li>
+              <li>CNIC: Auto-generated sequential numbers</li>
+              <li>Status: Unscanned</li>
+            </ul>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Generate Tickets</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
