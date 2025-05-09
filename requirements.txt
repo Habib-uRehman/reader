@@ -7,9 +7,8 @@ whitenoise
 dj-database-url 
 psycopg2-binary
 django-crispy-forms==2.1.0
-crispy-bootstrap5==2023.10
+crispy-bootstrap4==2022.1
 xlsxwriter
 djangorestframework
 xhtml2pdf
 python-dotenv
-crispy-bootstrap4

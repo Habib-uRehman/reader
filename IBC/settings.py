@@ -156,6 +156,7 @@ os.makedirs(os.path.join(BASE_DIR, 'media', 'qrcodes'), exist_ok=True)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Login URLs
