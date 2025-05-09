@@ -2,7 +2,7 @@ pandas
 qrcode
 gunicorn
 pillow
-django
+django==5.1.1
 whitenoise
 dj-database-url 
 psycopg2-binary
@@ -11,3 +11,5 @@ crispy-bootstrap5==2023.10
 xlsxwriter
 djangorestframework
 xhtml2pdf
+python-dotenv
+crispy-bootstrap4
